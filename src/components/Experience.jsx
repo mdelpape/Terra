@@ -3,7 +3,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable react/no-unknown-property */
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Stars, Clouds, Cloud } from "@react-three/drei";
 import { TextureLoader, Vector3, Group } from "three";
 import { useLoader, useFrame, useThree } from '@react-three/fiber';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
@@ -13,6 +13,8 @@ import { useGesture } from '@use-gesture/react';
 import { useSpring, a } from '@react-spring/three';
 import { useDrag } from 'react-use-gesture';
 import Plane from './Plane';
+// import Stars from './Stars';
+
 
 function EarthInspector({ responsiveness = 20, children }) {
   const { size } = useThree();
@@ -38,6 +40,10 @@ function EarthInspector({ responsiveness = 20, children }) {
 
 export default function Experience(props) {
   const { camera } = useThree();
+
+  const renderer = new THREE.WebGLRenderer();
+  renderer.shadowMap.enabled = true;
+
 
   useEffect(() => {
     // Set the camera's initial position
@@ -126,6 +132,7 @@ export default function Experience(props) {
       <EarthInspector>
         <a.mesh ref={earthRef} position={[0, 0, 0]}
           {...props}
+          receiveShadow
         >
           <sphereGeometry args={[15, 100, 100]} />
           <meshPhongMaterial
@@ -136,11 +143,24 @@ export default function Experience(props) {
             map={texture}
           />
         </a.mesh>
+        <Clouds material={THREE.MeshBasicMaterial}
+          position={[0, 19, 0]}
+        >
+          <Cloud segments={40} bounds={[4, .1, 4]} volume={.1} color="white" />
+          <Cloud segments={40} bounds={[4, .1, 4]}
+
+            volume={.1} color="lightblue" />
+
+        </Clouds>
       </EarthInspector>
       <mesh ref={sunRef} position={[0, 0, -10]}>
-        <pointLight ref={sunRef} position={[10, 10, 10]} intensity={20} decay={.1} castShadow
+        <pointLight ref={sunRef} intensity={20} decay={.1}
+
+          castShadow
           shadow-mapSize-width={5000}
           shadow-mapSize-height={5000}
+          shadow-camera-far={5000}
+
         />
         <sphereGeometry args={[10, 32, 100]} />
         <meshStandardMaterial
@@ -149,6 +169,7 @@ export default function Experience(props) {
           emissiveIntensity={1.5}
         />
       </mesh>
+      <Stars />
       <Plane />
     </>
   );
