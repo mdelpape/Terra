@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { useGesture } from '@use-gesture/react';
 import { useSpring, a } from '@react-spring/three';
 import { useDrag } from 'react-use-gesture';
+import Plane from './Plane';
 
 function EarthInspector({ responsiveness = 20, children }) {
   const { size } = useThree();
@@ -148,6 +149,7 @@ export default function Experience(props) {
           emissiveIntensity={1.5}
         />
       </mesh>
+      <Plane />
     </>
   );
 }
