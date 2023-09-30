@@ -143,7 +143,7 @@ export default function Experience(props) {
             map={texture}
           />
         </a.mesh>
-        <Clouds material={THREE.MeshBasicMaterial}
+        {/* <Clouds material={THREE.MeshBasicMaterial}
           position={[0, 19, 0]}
         >
           <Cloud segments={40} bounds={[4, .1, 4]} volume={.1} color="white" />
@@ -151,7 +151,7 @@ export default function Experience(props) {
 
             volume={.1} color="lightblue" />
 
-        </Clouds>
+        </Clouds> */}
       </EarthInspector>
       <mesh ref={sunRef} position={[0, 0, -10]}>
         <pointLight ref={sunRef} intensity={20} decay={.1}
