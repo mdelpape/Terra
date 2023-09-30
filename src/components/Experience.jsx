@@ -26,8 +26,8 @@ export default function Experience() {
   const [isLeftArrowPressed, setIsLeftArrowPressed] = useState(false);
   const [isRightArrowPressed, setIsRightArrowPressed] = useState(false);
 
-  const displacementTexture = useLoader(TextureLoader, '../../public/assets/World_elevation_map.png');
-  const texture = useLoader(TextureLoader, '../../public/assets/earth.jpg');
+  const displacementTexture = useLoader(TextureLoader, '/assets/World_elevation_map.png');
+  const texture = useLoader(TextureLoader, '/assets/earth.jpg');
   texture.anisotropy = 16;
 
   const { camera } = useThree();
