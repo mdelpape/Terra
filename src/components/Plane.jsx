@@ -11,7 +11,7 @@ import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 
 export default function Plane(props) {
-  const { nodes, materials } = useGLTF('/public/assets/uploads_files_4140769_plane-transformed.glb')
+  const { nodes, materials } = useGLTF('/assets/uploads_files_4140769_plane-transformed.glb')
   const objectRef = useRef();
 
   const orbitRadius = 20;
