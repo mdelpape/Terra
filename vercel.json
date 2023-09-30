@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "/uploads_files_4140769_plane-transformed.glb",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "model/gltf-binary"
+        }
+      ]
+    }
+  ]
+}
