@@ -17,7 +17,6 @@ export default function Experience() {
   const groupRef = useRef();
 
   useEffect(() => {
-    // Ensure the group contains the Earth
     groupRef.current.add(earthRef.current);
   }, []);
 
@@ -107,7 +106,7 @@ export default function Experience() {
         <group ref={groupRef}
           position={[0, 0, -10]}
           rotation={[0, 0, 0]}
-        >  {/* Lowercase 'group' instead of 'Group' */}
+        >
           <mesh ref={earthRef} position={[0, 0, -25]}
             rotation={[0, -.1, 0]}
             receiveShadow
@@ -121,15 +120,8 @@ export default function Experience() {
               map={texture}
             />
           </mesh>
-          {/* <mesh position={[0, 0, -25]}>
-            <sphereGeometry args={[14, 1000, 100]} />
-            <meshPhongMaterial
-              shininess={200}
-              color={0x0A5380}
-            />
-          </mesh> */}
           <Plane />
-        </group>  {/* Lowercase 'group' */}
+        </group>
       </EffectComposer>
       <OrbitControls />
       <mesh ref={sunRef} position={[0, 0, -10]}
@@ -137,7 +129,6 @@ export default function Experience() {
         <pointLight ref={sunRef} position={[10, 10, 10]} intensity={20} decay={.1} castShadow
           shadow-mapSize-width={5000}
           shadow-mapSize-height={5000}
-        // shadow-bias={-0.001}
         />
         <sphereGeometry args={[10, 32, 100]} />
         <meshStandardMaterial
