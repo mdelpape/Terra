@@ -1,34 +1,69 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 /* eslint-disable react/no-unknown-property */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { OrbitControls } from "@react-three/drei";
 import { TextureLoader, Vector3, Group } from "three";
 import { useLoader, useFrame, useThree } from '@react-three/fiber';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import { Matrix4, Quaternion } from 'three';
+import * as THREE from 'three';
+import { useGesture } from '@use-gesture/react';
+import { useSpring, a } from '@react-spring/three';
+import { useDrag } from 'react-use-gesture';
+
+function EarthInspector({ responsiveness = 20, children }) {
+  const { size } = useThree();
+  const euler = useMemo(() => new THREE.Euler(), []);
+  const [spring, api] = useSpring(() => ({
+    rotation: [0, 0, 0],
+  }));
+
+  const bind = useDrag(({ delta: [dx, dy] }) => {
+    euler.y += (dx / size.width) * responsiveness;
+    euler.x += (dy / size.width) * responsiveness;
+    euler.x = THREE.MathUtils.clamp(euler.x, -Math.PI / 2, Math.PI / 2);
+    api.start({ rotation: euler.toArray().slice(0, 3) });  // Updated line
+  });
+
+  return (
+    <a.group {...bind()} {...spring}>
+      {children}
+    </a.group>
+  );
+}
 
 
-export default function Experience() {
+export default function Experience(props) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    // Set the camera's initial position
+    camera.position.set(0, 0, 50);
+    camera.lookAt(0, 0, 0);  // Make the camera look at the origin
+  }, [camera]);
+
   const ref = useRef();
   const sunRef = useRef();
   const earthRef = useRef();
-  const groupRef = useRef();
 
-  useEffect(() => {
-    groupRef.current.add(earthRef.current);
-  }, []);
+  const displacementTexture = useLoader(TextureLoader, '/assets/World_elevation_map.png');
+  const texture = useLoader(TextureLoader, '/assets/earth.jpg');
+  texture.anisotropy = 16;
+
+  // rotate a sun around the earth
+  useFrame(({ clock }) => {
+    const time = clock.getElapsedTime() * 1;
+    sunRef.current.position.x = 300 * Math.cos(time);
+    sunRef.current.position.z = 300 * Math.sin(time);
+  });
 
   const [isUpArrowPressed, setIsUpArrowPressed] = useState(false);
   const [isDownArrowPressed, setIsDownArrowPressed] = useState(false);
   const [isLeftArrowPressed, setIsLeftArrowPressed] = useState(false);
   const [isRightArrowPressed, setIsRightArrowPressed] = useState(false);
 
-  const displacementTexture = useLoader(TextureLoader, '/assets/World_elevation_map.png');
-  const texture = useLoader(TextureLoader, '/assets/earth.jpg');
-  texture.anisotropy = 16;
-
-  const { camera } = useThree();
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -84,46 +119,24 @@ export default function Experience() {
     }
   });
 
-
-
-  // rotate a sun around the earth
-  useFrame(({ clock }) => {
-    const time = clock.getElapsedTime() * 1;
-    sunRef.current.position.x = 300 * Math.cos(time);
-    sunRef.current.position.z = 300 * Math.sin(time);
-  });
-
   return (
     <>
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={1}
-          luminanceSmoothing={0.075}
-          height={0}
-        />
-        <ambientLight intensity={3} />
-        <group ref={groupRef}
-          position={[0, 0, -10]}
-          rotation={[0, 0, 0]}
+      <ambientLight intensity={3} />
+      <EarthInspector>
+        <a.mesh ref={earthRef} position={[0, 0, 0]}
+          {...props}
         >
-          <mesh ref={earthRef} position={[0, 0, -25]}
-            rotation={[0, -.1, 0]}
-            receiveShadow
-          >
-            <sphereGeometry args={[15, 1000, 100]} />
-            <meshPhongMaterial
-              shininess={200}
-              displacementMap={displacementTexture}
-              displacementScale={3}
-              displacementBias={2}
-              map={texture}
-            />
-          </mesh>
-        </group>
-      </EffectComposer>
-      <OrbitControls />
-      <mesh ref={sunRef} position={[0, 0, -10]}
-      >
+          <sphereGeometry args={[15, 100, 100]} />
+          <meshPhongMaterial
+            shininess={200}
+            displacementMap={displacementTexture}
+            displacementScale={3}
+            displacementBias={2}
+            map={texture}
+          />
+        </a.mesh>
+      </EarthInspector>
+      <mesh ref={sunRef} position={[0, 0, -10]}>
         <pointLight ref={sunRef} position={[10, 10, 10]} intensity={20} decay={.1} castShadow
           shadow-mapSize-width={5000}
           shadow-mapSize-height={5000}
