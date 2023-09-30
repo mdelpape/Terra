@@ -7,7 +7,6 @@ import { TextureLoader, Vector3, Group } from "three";
 import { useLoader, useFrame, useThree } from '@react-three/fiber';
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
 import { Matrix4, Quaternion } from 'three';
-import Plane from './Plane';
 
 
 export default function Experience() {
@@ -120,7 +119,6 @@ export default function Experience() {
               map={texture}
             />
           </mesh>
-          <Plane />
         </group>
       </EffectComposer>
       <OrbitControls />
