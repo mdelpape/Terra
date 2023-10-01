@@ -13,22 +13,36 @@ import { useGesture } from '@use-gesture/react';
 import { useSpring, a } from '@react-spring/three';
 import { useDrag } from 'react-use-gesture';
 import Plane from './Plane';
+import Moon from './Moon';
 // import Stars from './Stars';
 
 
-function EarthInspector({ responsiveness = 20, children }) {
+function EarthInspector({ responsiveness = 20, children, orbitControlsRef }) {
   const { size } = useThree();
   const euler = useMemo(() => new THREE.Euler(), []);
   const [spring, api] = useSpring(() => ({
     rotation: [0, 0, 0],
   }));
 
-  const bind = useDrag(({ delta: [dx, dy] }) => {
+  const bind = useDrag(({ delta: [dx, dy], down, first, last }) => {
+    if (first) {
+      if (orbitControlsRef.current) {
+        orbitControlsRef.current.enabled = false;
+      }
+    }
+
     euler.y += (dx / size.width) * responsiveness;
     euler.x += (dy / size.width) * responsiveness;
     euler.x = THREE.MathUtils.clamp(euler.x, -Math.PI / 2, Math.PI / 2);
-    api.start({ rotation: euler.toArray().slice(0, 3) });  // Updated line
+    api.start({ rotation: euler.toArray().slice(0, 3) });
+
+    if (last) {
+      if (orbitControlsRef.current) {
+        orbitControlsRef.current.enabled = true;
+      }
+    }
   });
+
 
   return (
     <a.group {...bind()} {...spring}>
@@ -40,6 +54,8 @@ function EarthInspector({ responsiveness = 20, children }) {
 
 export default function Experience(props) {
   const { camera } = useThree();
+  const groupRef = useRef();
+  const orbitControlsRef = useRef();
 
   const renderer = new THREE.WebGLRenderer();
   renderer.shadowMap.enabled = true;
@@ -47,7 +63,7 @@ export default function Experience(props) {
 
   useEffect(() => {
     // Set the camera's initial position
-    camera.position.set(0, 0, 50);
+    camera.position.set(0, 0, 75);
     camera.lookAt(0, 0, 0);  // Make the camera look at the origin
   }, [camera]);
 
@@ -113,45 +129,39 @@ export default function Experience(props) {
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime() * 0.1;
     if (isLeftArrowPressed) {
-      earthRef.current.rotation.y += 0.01;
+      groupRef.current.rotation.y += 0.01;
     }
     if (isRightArrowPressed) {
-      earthRef.current.rotation.y -= 0.01;
+      groupRef.current.rotation.y -= 0.01;
     }
     if (isUpArrowPressed) {
-      earthRef.current.rotation.x += 0.01;
+      groupRef.current.rotation.x += 0.01;
     }
     if (isDownArrowPressed) {
-      earthRef.current.rotation.x -= 0.01;
+      groupRef.current.rotation.x -= 0.01;
     }
   });
 
   return (
     <>
       <ambientLight intensity={3} />
-      <EarthInspector>
-        <a.mesh ref={earthRef} position={[0, 0, 0]}
-          {...props}
-          receiveShadow
-        >
-          <sphereGeometry args={[15, 100, 100]} />
-          <meshPhongMaterial
-            shininess={200}
-            displacementMap={displacementTexture}
-            displacementScale={3}
-            displacementBias={2}
-            map={texture}
-          />
-        </a.mesh>
-        {/* <Clouds material={THREE.MeshBasicMaterial}
-          position={[0, 19, 0]}
-        >
-          <Cloud segments={40} bounds={[4, .1, 4]} volume={.1} color="white" />
-          <Cloud segments={40} bounds={[4, .1, 4]}
-
-            volume={.1} color="lightblue" />
-
-        </Clouds> */}
+      <EarthInspector orbitControlsRef={orbitControlsRef}>
+        <group ref={groupRef}>
+          <a.mesh ref={earthRef} position={[0, 0, 0]}
+            {...props}
+            receiveShadow
+          >
+            <sphereGeometry args={[15, 50, 100]} />
+            <meshPhongMaterial
+              shininess={200}
+              displacementMap={displacementTexture}
+              displacementScale={3}
+              displacementBias={2}
+              map={texture}
+            />
+          </a.mesh>
+          <Plane />
+        </group>
       </EarthInspector>
       <mesh ref={sunRef} position={[0, 0, -10]}>
         <pointLight ref={sunRef} intensity={20} decay={.1}
@@ -170,7 +180,8 @@ export default function Experience(props) {
         />
       </mesh>
       <Stars />
-      <Plane />
+      <Moon />
+      <OrbitControls ref={orbitControlsRef}/>
     </>
   );
 }
