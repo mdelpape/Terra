@@ -179,9 +179,8 @@ export default function Experience(props) {
           emissiveIntensity={1.5}
         />
       </mesh>
-      <Stars />
+      <Stars radius={100} depth={50} count={5000} factor={15} saturation={0} fade speed={0} />
       <Moon />
-      <OrbitControls ref={orbitControlsRef}/>
     </>
   );
 }
